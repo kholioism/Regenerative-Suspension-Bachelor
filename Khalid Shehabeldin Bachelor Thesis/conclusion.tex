@@ -1,0 +1,39 @@
+\chapter{Conclusions and Future Work}
+\label{chap:conclusion}
+
+\section{Summary of Research Findings}
+\label{sec:conclusion_summary}
+
+This thesis investigated the development, modelling, and control of a semi-active energy-regenerative suspension system. The primary objective was to resolve the inherent conflict between ride comfort, road holding, and energy harvesting by replacing traditional passive dampers with a linear electromagnetic motor governed by a unified, nested control architecture. 
+
+The inner electrical loop utilized a sliding mode current controller to manage the nonlinear, variable-structure dynamics of a unidirectional boost-buck converter. This provided robust current tracking across boost, buck, and passive operating regions. For the outer mechanical loop, a novel Model Predictive Control (MPC) strategy was developed to generate the reference forces. Unlike classical memoryless strategies, the proposed MPC utilized a sigmoid-based adaptive weight scheduler dependent on vehicle longitudinal speed, dynamically shifting its optimization priorities to suit varying driving conditions. 
+
+The closed-loop performance of the cascaded system was benchmarked against a standard passive suspension and a Hybrid Skyhook-Groundhook (HSG) controller across six deterministic and stochastic road scenarios. The quantitative findings established the clear superiority of the predictive architecture:
+\begin{itemize}
+    \item \textbf{Resonance Suppression:} At the 1.3~Hz sprung mass resonance, the MPC achieved a $15.2\%$ reduction in body acceleration RMS compared to the passive baseline, while the HSG system suffered from force clipping and amplified the acceleration by $2.5\%$. At the severe 10.9~Hz unsprung mass resonance, the MPC aggressively prioritized safety, reducing tyre dynamic load RMS by $36.7\%$, whereas the HSG worsened tyre contact by $27.7\%$.
+    \item \textbf{Actuator Feasibility:} The evaluation revealed a critical flaw in the HSG algorithm: its theoretical references frequently commanded physically unachievable instantaneous forces. This resulted in massive tracking divergences, including an $82.0\%$ tracking error in body acceleration at low frequencies. The MPC completely avoided this degradation; its predictive horizon and control increment penalties naturally generated smooth, dynamically feasible reference trajectories that the electrical actuator could safely reproduce ($0.0\%$ error at 1.3~Hz).
+    \item \textbf{Adaptive Stochastic Performance:} On ISO Class B and Class D road profiles, the adaptive scheduler successfully executed its intended safety trade-offs. Operating at high speeds, the MPC prioritized dynamic safety, consistently improving tyre dynamic load by $7.2\%$ to $8.0\%$ over the passive baseline. While this resulted in a stiffer ride compared to the comfort-biased HSG, it guaranteed tyre-road contact.
+    \item \textbf{Energy Harvesting:} The system successfully operated as a regenerative generator across all scenarios. Rather than blindly maximizing energy extraction, the MPC harvested power conservatively but consistently. It outperformed the HSG at the 1.3~Hz sprung mass resonance ($8.8\text{ W}$ vs $6.5\text{ W}$), but actively avoided the unsafe resonance exploitation that artificially inflated the HSG's power figures at 10.9~Hz, proving that it secures dynamic safety before generating power.\end{itemize}
+
+\section{Principal Contributions}
+\label{sec:conclusion_contributions}
+
+The principal contribution of this thesis is the formulation and validation of a frequency-adaptive, constrained MPC framework for regenerative suspensions. This architecture addresses critical gaps in the existing literature:
+\begin{enumerate}
+    \item \textbf{Elimination of Static Trade-offs:} By substituting fixed skyhook-groundhook parameters with a sigmoid-scheduled cost function based on longitudinal velocity, the controller autonomously adapts to the driving environment. It eliminates the need for manual driver intervention or mechanical structural modifications when transitioning between comfort-dominant urban driving and safety-dominant highway driving.
+    \item \textbf{Feasible Force Generation:} Existing literature heavily relies on post-hoc clipping of theoretical reference forces to maintain passivity and respect actuator limits. This thesis demonstrated that such clipping actively degrades closed-loop stability. The proposed MPC embeds slew rate limits directly into its optimization constraints, ensuring that the commanded reference forces are inherently achievable by the physical bandwidth of the downstream power converter.
+    \item \textbf{Modular Nested Architecture:} The explicit separation of mechanical force optimization (outer loop MPC) and electrical current tracking (inner loop SMC) provides a highly modular framework. This allows the high-level suspension control logic to be updated or replaced without requiring a redesign of the nonlinear electrical switching topology.
+\end{enumerate}
+
+\section{Research Limitations}
+\label{sec:conclusion_limitations}
+
+While the proposed control architecture demonstrated significant improvements over baseline strategies, the findings must be interpreted within the context of several modelling and operational assumptions:
+\begin{itemize}
+    \item \textbf{Quarter-Car Approximation:} The mechanical plant was modelled using a 2-DOF quarter-car formulation. While this isolates vertical heave dynamics effectively, it inherently neglects the pitch and roll coupled dynamics that occur during vehicle acceleration, braking, and cornering maneuvers.
+    \item \textbf{Stiff Battery Assumption:} The battery terminal voltage was assumed to be constant ($E_C = \SI{12}{\volt}$). In reality, a battery's state-of-charge (SoC) and internal resistance fluctuate during continuous charge and discharge cycles, which could marginally alter the mode transition boundaries ($v_\alpha$) of the boost-buck converter over prolonged journeys.
+    \item \textbf{CCM Averaged Modelling:} The electrical subsystem was modelled using continuous conduction mode (CCM) averaged dynamics. This assumption successfully captures the macroscopic energy flow but obscures high-frequency switching ripple and potential discontinuous conduction mode (DCM) behaviour when the inductor current approaches zero.
+    \item \textbf{Computational Feasibility:} The proposed MPC formulation relies on MATLAB's interior-point \texttt{quadprog} solver to resolve the finite-horizon quadratic programme at each \SI{5}{\milli\second} sampling step. While entirely sufficient for offline, variable-step simulation, this approach is highly computationally intensive. A real-time embedded implementation on a vehicle Electronic Control Unit (ECU) would require either an explicit MPC formulation (solving the matrices offline) or a highly optimized, condensed QP solver suitable for microcontroller deployment.
+\end{itemize}
+
+

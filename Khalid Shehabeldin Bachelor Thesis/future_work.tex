@@ -1,0 +1,9 @@
+\chapter{Future Work}
+\label{chap:todo}
+Building upon the foundations established in this thesis, several promising avenues for future research are identified:
+\begin{enumerate}
+    \item \textbf{Extension to Full-Car Dynamics:} The adaptive MPC framework should be expanded to a 7-DOF full-car model. This would allow the cost function to penalize pitch and roll accelerations, providing a comprehensive assessment of the controller's ability to stabilize the chassis during complex, three-dimensional driving maneuvers.
+    \item \textbf{Hardware-in-the-Loop (HIL) Validation:} To bridge the gap between simulation and physical implementation, the cascaded MPC-SMC architecture should be deployed on a real-time microcontroller (e.g., dSPACE). Bench-testing with a physical linear electromagnetic damper and a fabricated boost-buck circuit will validate the controller's resilience to real-world sensor noise and unmodelled friction.
+    \item \textbf{Integration of DCM Dynamics:} Expanding the inner-loop sliding mode controller to explicitly handle discontinuous conduction mode (DCM) boundaries would improve current tracking fidelity at very low suspension velocities, where zero-crossing currents are most likely to occur.
+    \item \textbf{Energy-Aware Cost Formulation:} Future iterations of the MPC could integrate the generated power directly into the quadratic cost function as an actively maximized variable, rather than treating it strictly as a monitored byproduct. This would require careful tuning to ensure that maximizing energy extraction does not artificially induce instability.
+\end{enumerate}
